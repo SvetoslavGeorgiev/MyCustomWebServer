@@ -41,7 +41,7 @@
 
                 var networkStream = connection.GetStream();
 
-                var requestText = await reedRequest(networkStream);
+                var requestText = await RSeedRequest(networkStream);
 
                 await Console.Out.WriteLineAsync(requestText);
 
@@ -53,18 +53,25 @@
             }
         }
 
-        private async Task<string> reedRequest(NetworkStream networkStream)
+        private async Task<string> ReedRequest(NetworkStream networkStream)
         {
             var bufferLength = 1024;
             var buffer = new byte[bufferLength];
+            var totalBytes = 0;
 
             var requestBuilder = new StringBuilder();
 
             while (networkStream.DataAvailable)
             {
 
+                if (totalBytes > 10 * bufferLength)
+                {
+                    throw new InvalidOperationException("Request is too large!");
+                }
+
                 var bytesRead = await networkStream.ReadAsync(buffer, 0, bufferLength);
                 requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
+                totalBytes += bytesRead;
 
             }
 
