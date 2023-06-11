@@ -41,7 +41,7 @@
 
                 var networkStream = connection.GetStream();
 
-                var requestText = await RSeedRequest(networkStream);
+                var requestText = await ReedRequest(networkStream);
 
                 await Console.Out.WriteLineAsync(requestText);
 
