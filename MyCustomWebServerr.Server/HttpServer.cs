@@ -56,7 +56,7 @@
 
                 var request = HttpRequest.Parse(requestText);
 
-                var response = routingTable.MatchRequest(request);
+                var response = routingTable.ExecuteRequest(request);
 
                 await WriteResponse(networkStream, response);
 

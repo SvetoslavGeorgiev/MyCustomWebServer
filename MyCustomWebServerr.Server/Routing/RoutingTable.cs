@@ -7,7 +7,7 @@
 
     public class RoutingTable : IRoutingTable
     {
-        private readonly Dictionary<HttpMethod, Dictionary<string, HttpResponse>> routes;
+        private readonly Dictionary<HttpMethod, Dictionary<string, Func<HttpRequest, HttpResponse>>> routes;
 
         public RoutingTable() => this.routes = new()
         {
@@ -20,23 +20,36 @@
 
         public IRoutingTable Map(HttpMethod method, string path, HttpResponse response)
         {
-            Guard.AgainstNull(path, nameof(path));
             Guard.AgainstNull(response, nameof(response));
 
-            routes[HttpMethod.Get][path] = response;
+            return Map(method, path, request => response);
+        }
+
+        public IRoutingTable Map(HttpMethod method, string path, Func<HttpRequest, HttpResponse> responseFunc)
+        {
+            Guard.AgainstNull(path, nameof(path));
+            Guard.AgainstNull(responseFunc, nameof(responseFunc));
+
+            routes[HttpMethod.Get][path] = responseFunc;
 
             return this;
         }
-            
+
 
 
         public IRoutingTable MapGet(string path, HttpResponse response)
-            => Map(HttpMethod.Get, path, response);
+            => MapGet(path, request => response);
+
+        public IRoutingTable MapGet(string path, Func<HttpRequest, HttpResponse> responseFunc)
+            => Map(HttpMethod.Get, path, responseFunc);
 
         public IRoutingTable MapPost(string path, HttpResponse response)
-            => Map(HttpMethod.Post, path, response);
+            => MapPost(path, request => response);
 
-        public HttpResponse MatchRequest(HttpRequest request)
+        public IRoutingTable MapPost(string path, Func<HttpRequest, HttpResponse> responseFunc)
+            => Map(HttpMethod.Post, path, responseFunc);
+
+        public HttpResponse ExecuteRequest(HttpRequest request)
         {
             var requestMethod = request.Method;
             var requsePath = request.Path;
@@ -46,7 +59,9 @@
                 return new NotFoundResponse();
             }
 
-            return routes[requestMethod][requsePath];
+            var responseFunc = routes[requestMethod][requsePath];
+
+            return responseFunc(request);
         }
     }
 }
