@@ -1,5 +1,7 @@
 ﻿namespace MyCustomWebServer.Server.Http
 {
+    using System.Xml.Linq;
+
     public class HttpRequest
     {
         private const string NewLine = "\r\n";
@@ -65,13 +67,10 @@
                     throw new InvalidOperationException("Request is not valid");
                 }
 
-                var header = new HttpHeader()
-                {
-                    Name = headerParts[0],
-                    Value = headerParts[1].Trim()
-                };
+                var headerName = headerParts[0];
+                var headerValue = headerParts[1].Trim();
 
-                headers.Add(header);
+                headers.Add(headerName, headerValue);
             }
 
             return headers;

@@ -1,6 +1,6 @@
 ﻿namespace MyCustomWebServer.Server
 {
-    using MyCustomWebServer.Server.Http;
+    using MyCustomWebServer.Server.Routing;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
@@ -12,11 +12,22 @@
         private readonly int port;
         private readonly TcpListener serverListener;
 
-        public HttpServer(IPAddress ipAddress, int port)
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTable)
         {
-            this.ipAddress = ipAddress;
+            this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
             serverListener = new TcpListener(this.ipAddress, this.port);
+        }
+
+        public HttpServer(int port, Action<IRoutingTable> routingTable) 
+            : this("127.0.0.1", port, routingTable)
+        {
+        }
+
+        public HttpServer(Action<IRoutingTable> routingTable)
+            : this(8080, routingTable)
+        {
+            
         }
 
         public async Task Start()
@@ -45,7 +56,7 @@
 
                 await Console.Out.WriteLineAsync(requestText);
 
-                var request = HttpRequest.Parse(requestText);
+                //var request = HttpRequest.Parse(requestText);
 
                 await WriteResponse(networkStream);
 
@@ -61,9 +72,8 @@
 
             var requestBuilder = new StringBuilder();
 
-            while (networkStream.DataAvailable)
+            do
             {
-
                 if (totalBytes > 10 * bufferLength)
                 {
                     throw new InvalidOperationException("Request is too large!");
@@ -72,8 +82,9 @@
                 var bytesRead = await networkStream.ReadAsync(buffer, 0, bufferLength);
                 requestBuilder.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
                 totalBytes += bytesRead;
-
             }
+            while (networkStream.DataAvailable);
+            
 
             var request = requestBuilder.ToString();
             return request;
