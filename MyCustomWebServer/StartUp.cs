@@ -3,13 +3,12 @@
     using MyCustomWebServer.Server;
     using MyCustomWebServer.Server.Responses;
 
-
     public class StartUp
     {
         static async Task Main(string[] args)
-            => await new HttpServer(routingTable => routingTable
+            => await new HttpServer(routes => routes
             .MapGet("/", new TextResponse("Hello From Svetoslav"))
-            .MapGet("/Dogs", new TextResponse("<h1>Hello from Dogs</h1>", "text/html")))
+            .MapGet("/Dogs", new HtmlResponse("<h1>Hello from Dogs</h1>")))
             .Start();
     }
 }

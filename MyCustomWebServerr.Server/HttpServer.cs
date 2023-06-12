@@ -1,5 +1,6 @@
 ﻿namespace MyCustomWebServer.Server
 {
+    using MyCustomWebServer.Server.Http;
     using MyCustomWebServer.Server.Routing;
     using System.Net;
     using System.Net.Sockets;
@@ -12,11 +13,17 @@
         private readonly int port;
         private readonly TcpListener serverListener;
 
-        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTable)
+        private readonly RoutingTable routingTable;
+
+
+        public HttpServer(string ipAddress, int port, Action<IRoutingTable> routingTableConfiguration)
         {
             this.ipAddress = IPAddress.Parse(ipAddress);
             this.port = port;
+
             serverListener = new TcpListener(this.ipAddress, this.port);
+
+            routingTableConfiguration(routingTable = new RoutingTable());
         }
 
         public HttpServer(int port, Action<IRoutingTable> routingTable) 
@@ -32,13 +39,6 @@
 
         public async Task Start()
         {
-            //HTTP / 1.1 404 Not Found
-            //Date: Sun, 18 Oct 2012 10:36:20 GMT
-            //Server: Apache / 2.2.14(Win32)
-            //Content - Length: 230
-            //Connection: Closed
-            //Content - Type: text / html; charset = iso - 8859 - 1
-
 
             serverListener.Start();
 
@@ -54,11 +54,11 @@
 
                 var requestText = await ReedRequest(networkStream);
 
-                await Console.Out.WriteLineAsync(requestText);
+                var request = HttpRequest.Parse(requestText);
 
-                //var request = HttpRequest.Parse(requestText);
+                var response = routingTable.MatchRequest(request);
 
-                await WriteResponse(networkStream);
+                await WriteResponse(networkStream, response);
 
                 connection.Close();
             }
@@ -90,21 +90,9 @@
             return request;
         }
 
-        private async Task WriteResponse(NetworkStream networkStream)
+        private async Task WriteResponse(NetworkStream networkStream, HttpResponse response)
         {
-            var content = "<h1>Здрасти от Светльо от новия ти сървър</h1>";
-            var contentLength = Encoding.UTF8.GetByteCount(content);
-
-
-            var response = $@"HTTP/1.1 200 OK
-Server: My Web Server
-Date: {DateTime.UtcNow:r}
-Content-Length: {contentLength}
-Content-Type: text/html; charset=UTF-8
-
-{content}";
-
-            var responseBytes = Encoding.UTF8.GetBytes(response);
+            var responseBytes = Encoding.UTF8.GetBytes(response.ToString());
 
             await networkStream.WriteAsync(responseBytes);
         }

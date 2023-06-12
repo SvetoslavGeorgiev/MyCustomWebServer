@@ -7,7 +7,7 @@
         private const string NewLine = "\r\n";
 
         public HttpMethod Method { get; private set; }
-        public string Url { get; private set; } = string.Empty;
+        public string Path { get; private set; } = string.Empty;
 
         public HttpHeaderCollection Headers { get; private set; } = null!;
 
@@ -20,7 +20,7 @@
             var startLine = lines.First().Split(" ");
 
             var method = ParseHttpMethod(startLine[0]);
-            var url = startLine[1];
+            var path = startLine[1];
             var headers = ParseHttpHeaders(lines.Skip(1));
             var bodyLines = lines.Skip(headers.Count + 2).ToArray();
 
@@ -29,7 +29,7 @@
             return new HttpRequest
             {
                 Method = method,
-                Url = url,
+                Path = path,
                 Headers = headers,
                 Body = body
             };
