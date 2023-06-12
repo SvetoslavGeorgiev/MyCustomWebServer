@@ -1,18 +1,15 @@
 ﻿namespace MyCustomWebServer
 {
     using MyCustomWebServer.Server;
-    using System.Net;
+    using MyCustomWebServer.Server.Responses;
+
 
     public class StartUp
     {
         static async Task Main(string[] args)
-        {
-            var address = IPAddress.Parse("127.0.0.1");
-            var port = 8080;
-
-            var server = new HttpServer(address, port);
-
-            await server.Start();
-        }
+            => await new HttpServer(routingTable => routingTable
+            .MapGet("/", new TextResponse("Hello From Svetoslav"))
+            .MapGet("/Dogs", new TextResponse("<h1>Hello from Dogs</h1>", "text/html")))
+            .Start();
     }
 }
