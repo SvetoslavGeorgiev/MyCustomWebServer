@@ -1,7 +1,6 @@
-﻿namespace MyCustomWebServer
+﻿namespace MyCustomWebServer.App
 {
-    using MyCustomWebServer.Server;
-    using MyCustomWebServer.Server.Responses;
+    using Responses;
 
     public class StartUp
     {

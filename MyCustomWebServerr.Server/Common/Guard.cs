@@ -1,4 +1,4 @@
-﻿namespace MyCustomWebServer.Server.Common
+﻿namespace MyCustomWebServer.Common
 {
     public static class Guard
     {

@@ -1,4 +1,4 @@
-﻿namespace MyCustomWebServer.Server.Responses
+﻿namespace MyCustomWebServer.Responses
 {
     public class HtmlResponse : ContentResponse
     {

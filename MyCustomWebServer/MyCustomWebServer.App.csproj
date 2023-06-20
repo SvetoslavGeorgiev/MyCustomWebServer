@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MyCustomWebServerr.Server\MyCustomWebServer.Server.csproj" />
+    <ProjectReference Include="..\MyCustomWebServerr.Server\MyCustomWebServer.csproj" />
+    <ProjectReference Include="..\MyCustomWebServerr.Server\MyCustomWebServer.csproj" />
   </ItemGroup>
 
 </Project>

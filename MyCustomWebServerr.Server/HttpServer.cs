@@ -1,7 +1,7 @@
-﻿namespace MyCustomWebServer.Server
+﻿namespace MyCustomWebServer
 {
-    using MyCustomWebServer.Server.Http;
-    using MyCustomWebServer.Server.Routing;
+    using Http;
+    using Routing;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;

@@ -1,7 +1,5 @@
-﻿namespace MyCustomWebServer.Server.Http
+﻿namespace MyCustomWebServer.Http
 {
-    using System.Xml.Linq;
-
     public class HttpRequest
     {
         private const string NewLine = "\r\n";
@@ -57,14 +55,14 @@
 
         private static (string, Dictionary<string, string>) ParseUrl(string url)
         {
-            var urlParts = url.Split('?');
+            var urlParts = url.Split('?', 2);
 
             var path = urlParts[0];
 
             var query =  new Dictionary<string, string>();
             if (urlParts.Length > 1)
             {
-                var queryParts = urlParts[1].Split("&");
+                var queryParts = urlParts[1].Split("&", 2);
 
                 query = ParseQuery(queryParts);
             }
@@ -85,7 +83,7 @@
 
             foreach (var part in queryParts)
             {
-                var partsTokens = part.Split("=");
+                var partsTokens = part.Split("=", 2);
 
                 if (partsTokens.Length == 2 && !query.ContainsKey(partsTokens[0]))
                 {

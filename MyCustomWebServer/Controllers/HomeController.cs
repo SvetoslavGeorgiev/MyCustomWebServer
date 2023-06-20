@@ -1,6 +1,6 @@
-﻿namespace MyCustomWebServer.Controllers
+﻿namespace MyCustomWebServer.App.Controllers
 {
-    using MyCustomWebServer.Server.Http;
+    using MyCustomWebServer.Http;
 
     public class HomeController
     {

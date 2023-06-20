@@ -1,8 +1,8 @@
-﻿namespace MyCustomWebServer.Server.Routing
+﻿namespace MyCustomWebServer.Routing
 {
-    using MyCustomWebServer.Server.Common;
-    using MyCustomWebServer.Server.Http;
-    using MyCustomWebServer.Server.Responses;
+    using Common;
+    using Http;
+    using Responses;
     using System;
 
     public class RoutingTable : IRoutingTable

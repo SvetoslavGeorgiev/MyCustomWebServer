@@ -1,6 +1,6 @@
-﻿namespace MyCustomWebServer.Server.Responses
+﻿namespace MyCustomWebServer.Responses
 {
-    using MyCustomWebServer.Server.Http;
+    using Http;
 
     public class BadRequestResponse : HttpResponse
     {

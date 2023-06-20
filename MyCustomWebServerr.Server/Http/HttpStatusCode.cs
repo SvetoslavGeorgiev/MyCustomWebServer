@@ -1,4 +1,4 @@
-﻿namespace MyCustomWebServer.Server.Http
+﻿namespace MyCustomWebServer.Http
 {
     public enum HttpStatusCode
     {
