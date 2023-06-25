@@ -1,14 +1,16 @@
 ﻿namespace MyCustomWebServer.App.Controllers
 {
+    using MyCustomWebServer.Controllers;
     using MyCustomWebServer.Http;
 
-    public class HomeController
+    public class HomeController : Controller
     {
-
-        public HttpResponse Index()
+        public HomeController(HttpRequest request) 
+            : base(request)
         {
-            return null;
         }
+
+        public HttpResponse Index() => Text("Hello From Svetoslav");
 
 
     }
