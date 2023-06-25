@@ -11,6 +11,7 @@
             => await new HttpServer(routes => routes
             .MapGet<HomeController>("/", c => c.Index())
             .MapGet<HomeController>("/Softuni", c => c.ToSoftUni())
+            .MapGet<HomeController>("/ToDogs", c => c.LocalRedirect())
             .MapGet<AnimalsContreller>("/Cats", c => c.Cats())
             .MapGet<AnimalsContreller>("/Dogs", c => c.Dogs()))
             .Start();
