@@ -30,7 +30,7 @@
             Guard.AgainstNull(path, nameof(path));
             Guard.AgainstNull(responseFunc, nameof(responseFunc));
 
-            routes[HttpMethod.Get][path] = responseFunc;
+            routes[HttpMethod.Get][path.ToLower()] = responseFunc;
 
             return this;
         }
@@ -52,7 +52,7 @@
         public HttpResponse ExecuteRequest(HttpRequest request)
         {
             var requestMethod = request.Method;
-            var requsePath = request.Path;
+            var requsePath = request.Path.ToLower();
 
             if (!routes.ContainsKey(requestMethod) || !routes[requestMethod].ContainsKey(requsePath))
             {
