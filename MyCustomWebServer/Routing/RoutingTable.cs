@@ -30,7 +30,7 @@
             Guard.AgainstNull(path, nameof(path));
             Guard.AgainstNull(responseFunc, nameof(responseFunc));
 
-            routes[HttpMethod.Get][path.ToLower()] = responseFunc;
+            routes[method][path.ToLower()] = responseFunc;
 
             return this;
         }

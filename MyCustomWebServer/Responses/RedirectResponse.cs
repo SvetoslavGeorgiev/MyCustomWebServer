@@ -7,7 +7,7 @@
         public RedirectResponse(string location) 
             : base(HttpStatusCode.FOUND)
         {
-            Headers.Add("location", location);
+            Headers.Add(HttpHeader.Location, new HttpHeader(HttpHeader.Location, location));
         }
     }
 }

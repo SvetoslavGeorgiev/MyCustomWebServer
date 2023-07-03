@@ -1,9 +1,7 @@
 ﻿namespace MyCustomWebServer.Http
 {
     using MyCustomWebServer.Common;
-    using System.Net.Mime;
     using System.Text;
-    using static System.Net.Mime.MediaTypeNames;
 
     public class HttpResponse
     {
@@ -11,14 +9,14 @@
         {
             StatusCode = statusCode;
 
-            Headers.Add("Server", "My Web Server");
-            Headers.Add("Date", $"{DateTime.UtcNow:r}");
+            Headers.Add(HttpHeader.Server, new HttpHeader(HttpHeader.Server,"My Web Server"));
+            Headers.Add(HttpHeader.Date, new HttpHeader(HttpHeader.Date, $"{DateTime.UtcNow:r}"));
         }
         public HttpStatusCode StatusCode { get; protected set; }
 
         public string Content { get; protected set; } = null!;
 
-        public HttpHeaderCollection Headers { get; } = new HttpHeaderCollection();
+        public IDictionary<string, HttpHeader> Headers { get; } = new Dictionary<string, HttpHeader>();
 
         public override string ToString()
         {
@@ -26,7 +24,7 @@
 
             result.AppendLine($"HTTP/1.1 {(int)StatusCode} {StatusCode}");
 
-            foreach (var header in Headers)
+            foreach (var header in Headers.Values)
             {
                 result.AppendLine($"{header.ToString()}");
             }
@@ -48,8 +46,8 @@
 
             var contentLength = Encoding.UTF8.GetByteCount(text).ToString();
 
-            Headers.Add("Content-Type", contentType);
-            Headers.Add("Content-Length", contentLength);
+            Headers.Add(HttpHeader.ContentType, new HttpHeader(HttpHeader.ContentType, contentType));
+            Headers.Add(HttpHeader.ContentLength, new HttpHeader(HttpHeader.ContentLength, contentLength));
 
             Content = text;
         }
