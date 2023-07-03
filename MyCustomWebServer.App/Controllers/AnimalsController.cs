@@ -3,10 +3,10 @@
     using Http;
     using MyCustomWebServer.Controllers;
 
-    public class AnimalsContreller : Controller
+    public class AnimalsController : Controller
     {
         
-        public AnimalsContreller(HttpRequest request) 
+        public AnimalsController(HttpRequest request) 
             : base(request)
         {
         }
@@ -27,6 +27,8 @@
         }
 
 
-        public HttpResponse Dogs() => View("/View/Animals/Dogs");
+        public HttpResponse Dogs() => View();
+        public HttpResponse Bunnies() => View("Rabbits");
+        public HttpResponse Turtles() => View("Animals/Wild/Turtles");
     }
 }

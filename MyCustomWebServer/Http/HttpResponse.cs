@@ -1,6 +1,9 @@
 ﻿namespace MyCustomWebServer.Http
 {
+    using MyCustomWebServer.Common;
+    using System.Net.Mime;
     using System.Text;
+    using static System.Net.Mime.MediaTypeNames;
 
     public class HttpResponse
     {
@@ -11,9 +14,9 @@
             Headers.Add("Server", "My Web Server");
             Headers.Add("Date", $"{DateTime.UtcNow:r}");
         }
-        public HttpStatusCode StatusCode { get; init; }
+        public HttpStatusCode StatusCode { get; protected set; }
 
-        public string Content { get; init; } = null!;
+        public string Content { get; protected set; } = null!;
 
         public HttpHeaderCollection Headers { get; } = new HttpHeaderCollection();
 
@@ -36,7 +39,19 @@
             }
 
             return result.ToString();
+        }
 
+        protected void PrepareContent(string text, string contentType)
+        {
+            Guard.AgainstNull(text, nameof(text));
+            Guard.AgainstNull(contentType, nameof(contentType));
+
+            var contentLength = Encoding.UTF8.GetByteCount(text).ToString();
+
+            Headers.Add("Content-Type", contentType);
+            Headers.Add("Content-Length", contentLength);
+
+            Content = text;
         }
     }
 }

@@ -4,18 +4,39 @@
 
     public class ViewResponse : HttpResponse
     {
-        private readonly string filePath;
-        public ViewResponse(string _filePath) 
-            : base(HttpStatusCode.OK)
+        private const char PathSeparator = '/';
+
+        public ViewResponse(string viewName, string controllerName)
+            : base(HttpStatusCode.OK) => GetHtml(viewName, controllerName);
+
+        private void GetHtml(string viewName, string controllerName)
         {
-            GetHtml(_filePath);
+            if (!viewName.Contains(PathSeparator))
+            {
+                viewName = controllerName + PathSeparator + viewName;
+            }
+            
+            var viewPath = Path.GetFullPath("Views/" + viewName + ".cshtml"); 
+
+            if (!File.Exists(viewPath)) 
+            {
+                PrepareMissingViewError(viewName);
+                return;
+            }
+
+            var text = File.ReadAllText(viewPath);
+
+            PrepareContent(text, HttpContentType.Html);
+
         }
 
-        private void GetHtml(string filePath)
+        private void PrepareMissingViewError(string viewName)
         {
-            if (filePath == null) { }
+            StatusCode = HttpStatusCode.NOT_FOUND;
+
+            var errorMessage = $"View '{viewName} was not found";
+
+            PrepareContent(errorMessage, HttpContentType.PlainText);
         }
-
-
     }
 }
