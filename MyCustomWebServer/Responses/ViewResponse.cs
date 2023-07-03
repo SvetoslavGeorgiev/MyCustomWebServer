@@ -1,15 +1,16 @@
 ﻿namespace MyCustomWebServer.Responses
 {
     using Http;
+    using System.Security.AccessControl;
 
     public class ViewResponse : HttpResponse
     {
         private const char PathSeparator = '/';
 
-        public ViewResponse(string viewName, string controllerName)
-            : base(HttpStatusCode.OK) => GetHtml(viewName, controllerName);
+        public ViewResponse(string viewName, string controllerName, object model)
+            : base(HttpStatusCode.OK) => GetHtml(viewName, controllerName, model);
 
-        private void GetHtml(string viewName, string controllerName)
+        private void GetHtml(string viewName, string controllerName, object model)
         {
             if (!viewName.Contains(PathSeparator))
             {
@@ -24,9 +25,14 @@
                 return;
             }
 
-            var text = File.ReadAllText(viewPath);
+            var viewContent = File.ReadAllText(viewPath);
 
-            PrepareContent(text, HttpContentType.Html);
+            if (model != null)
+            {
+                viewContent = PopulateModel(viewContent, model);
+            }
+
+            PrepareContent(viewContent, HttpContentType.Html);
 
         }
 
@@ -37,6 +43,30 @@
             var errorMessage = $"View '{viewName} was not found";
 
             PrepareContent(errorMessage, HttpContentType.PlainText);
+        }
+
+        private string PopulateModel(string viewContent, object model)
+        {
+            var data = model
+                .GetType()
+                .GetProperties()
+                .Select(pr => new
+                {
+                    Name = pr.Name,
+                    Value = pr.GetValue(model)
+                });
+
+            foreach (var property in data)
+            {
+                const string openingBrackets = "{{";
+                const string closingBrackets = "}}";
+
+                var name = $"{openingBrackets}{property.Name}{closingBrackets}";
+
+                viewContent = viewContent.Replace($"{name}", property.Value.ToString());
+            }
+
+            return viewContent;
         }
     }
 }

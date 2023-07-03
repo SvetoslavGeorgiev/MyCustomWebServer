@@ -42,7 +42,7 @@
 
             serverListener.Start();
 
-            //await Console.Out.WriteLineAsync($"Server started on port {port}..."); // mice to know this one
+            //await Console.Out.WriteLineAsync($"Server started on port {port}..."); // nice to know this one
             Console.WriteLine($"Server started on port {port}...");
             Console.WriteLine("Listening for requests...");
 

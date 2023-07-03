@@ -1,7 +1,9 @@
 ﻿namespace MyCustomWebServer.App.Controllers
 {
     using Http;
+    using Models.Animals;
     using MyCustomWebServer.Controllers;
+    using System.Net.Http.Headers;
 
     public class AnimalsController : Controller
     {
@@ -14,6 +16,7 @@
         public HttpResponse Cats()
         {
             const string nameKey = "Name";
+            const string ageKey = "Age";
 
             var query = Request.Query;
 
@@ -21,9 +24,17 @@
                 ? query[nameKey]
                 : "the cats";
 
-            var result = $"<h1>Hello from {catName}!</h1>";
+            var catAge = query.ContainsKey(ageKey)
+                ? int.Parse(query[ageKey])
+                : 0;
+            var model = new CatViewModel 
+            { 
+                Name = catName, 
+                Age = catAge 
+            };
 
-            return Html(result);
+
+            return View(model);
         }
 
 
