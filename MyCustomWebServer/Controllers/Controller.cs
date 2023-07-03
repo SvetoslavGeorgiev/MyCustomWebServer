@@ -1,7 +1,7 @@
 ﻿namespace MyCustomWebServer.Controllers
 {
-    using MyCustomWebServer.Http;
-    using MyCustomWebServer.Responses;
+    using Http;
+    using Responses;
 
     public abstract class Controller
     {
@@ -20,6 +20,12 @@
 
         protected HttpResponse Redirect(string location)
             => new RedirectResponse(location);
+
+        protected HttpResponse View()
+            => null;
+
+        protected HttpResponse View(string view)
+            => new ViewResponse(view);
 
     }
 }

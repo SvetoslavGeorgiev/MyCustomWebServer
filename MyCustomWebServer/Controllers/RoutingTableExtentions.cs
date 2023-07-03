@@ -1,8 +1,7 @@
 ﻿namespace MyCustomWebServer.Controllers
 {
-    using MyCustomWebServer.Http;
-    using MyCustomWebServer.Routing;
-    using System.IO;
+    using Http;
+    using Routing;
 
     public static class RoutingTableExtentions
     {

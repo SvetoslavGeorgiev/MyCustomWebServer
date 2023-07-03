@@ -1,15 +1,15 @@
 ﻿namespace MyCustomWebServer.Http
 {
-    using MyCustomWebServer.Common;
+    using Common;
 
-    public class HttpHeader
+    public class HttpCookie
     {
-        public HttpHeader(string name, string value)
+        public HttpCookie(string name, string value)
         {
             Guard.AgainstNull(name, nameof(name));
             Guard.AgainstNull(value, nameof(value));
 
-            Name = name; 
+            Name = name;
             Value = value;
         }
         public string Name { get; init; } = null!;
@@ -17,5 +17,6 @@
 
         public override string ToString()
             => $"{Name}: {Value}";
+
     }
 }
