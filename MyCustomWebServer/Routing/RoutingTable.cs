@@ -62,5 +62,37 @@
 
             return responseFunc(request);
         }
+
+        public IRoutingTable MapStaticFIles(string folder = Settings.StaticFilesRootFolder)
+        {
+            const char DirectoryPathseparator = '\\';
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var staticFilesFolder = Path.Combine(currentDirectory + DirectoryPathseparator + folder);
+            var staticFiles = Directory.GetFiles(staticFilesFolder, "*.*", SearchOption.AllDirectories);
+
+
+
+            foreach ( var file in staticFiles)
+            {
+                const char UrlPathseparator = '/';
+
+                var relativePath = Path.GetRelativePath(staticFilesFolder, file);
+
+                var urlPath = UrlPathseparator + relativePath.Replace(DirectoryPathseparator, UrlPathseparator);
+
+                MapGet(urlPath, request =>
+                {
+                    var content = File.ReadAllBytes(file);
+
+                    var fileExtension = Path.GetExtension(file).Trim('.');
+                    var contentType = HttpContentType.GetByFileExtension(fileExtension);
+
+                    return new HttpResponse(HttpStatusCode.OK)
+                    .SetContent(content, contentType);
+                });
+            }
+
+            return this;
+        }
     }
 }

@@ -36,7 +36,7 @@
                 viewContent = PopulateModel(viewContent, model);
             }
 
-            PrepareContent(viewContent, HttpContentType.Html);
+            SetContent(viewContent, HttpContentType.Html);
 
         }
 
@@ -46,7 +46,7 @@
 
             var errorMessage = $"View '{viewName} was not found";
 
-            PrepareContent(errorMessage, HttpContentType.PlainText);
+            SetContent(errorMessage, HttpContentType.PlainText);
         }
 
         private string PopulateModel(string viewContent, object model)

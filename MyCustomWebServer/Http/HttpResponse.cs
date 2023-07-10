@@ -2,6 +2,7 @@
 {
     using MyCustomWebServer.Common;
     using System.Text;
+    using static System.Net.Mime.MediaTypeNames;
 
     public class HttpResponse
     {
@@ -14,16 +15,44 @@
         }
         public HttpStatusCode StatusCode { get; protected set; }
 
-        public string Content { get; protected set; } = null!;
+        public byte[] Content { get; protected set; } = null!;
+
+        public bool HasContent => Content != null && Content.Any();
 
         public IDictionary<string, HttpHeader> Headers { get; } = new Dictionary<string, HttpHeader>();
         public IDictionary<string, HttpCookie> Cookies { get; } = new Dictionary<string, HttpCookie>();
 
         public static HttpResponse ForError(string message)
             => new HttpResponse(HttpStatusCode.INTERNAL_SERVER_ERRROR)
-            {
-                Content = message
-            };
+                .SetContent(message, HttpContentType.PlainText);
+
+        public HttpResponse SetContent(string text, string contentType)
+        {
+            Guard.AgainstNull(text, nameof(text));
+            Guard.AgainstNull(contentType, nameof(contentType));
+
+            var contentLength = Encoding.UTF8.GetByteCount(text).ToString();
+
+            AddHeader(HttpHeader.ContentType, contentType);
+            AddHeader(HttpHeader.ContentLength, contentLength);
+
+            Content = Encoding.UTF8.GetBytes(text);
+
+            return this;
+        }
+
+        public HttpResponse SetContent(byte[] content, string contentType)
+        {
+            Guard.AgainstNull(content, nameof(content));
+            Guard.AgainstNull(contentType, nameof(contentType));
+
+            AddHeader(HttpHeader.ContentType, contentType);
+            AddHeader(HttpHeader.ContentLength, content.Length.ToString());
+
+            Content = content;
+
+            return this;
+        }
 
         public void AddHeader(string name, string value)
         {
@@ -57,27 +86,14 @@
                 result.AppendLine($"{HttpHeader.SetCookie}: {cookie}");
             }
 
-            if (!string.IsNullOrEmpty(Content))
+            if (HasContent)
             {
                 result.AppendLine();
-
-                result.Append(Content);
             }
 
             return result.ToString();
         }
 
-        protected void PrepareContent(string text, string contentType)
-        {
-            Guard.AgainstNull(text, nameof(text));
-            Guard.AgainstNull(contentType, nameof(contentType));
-
-            var contentLength = Encoding.UTF8.GetByteCount(text).ToString();
-
-            AddHeader(HttpHeader.ContentType, contentType);
-            AddHeader(HttpHeader.ContentLength, contentLength);
-
-            Content = text;
-        }
+        
     }
 }
