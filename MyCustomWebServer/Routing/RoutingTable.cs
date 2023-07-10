@@ -2,7 +2,6 @@
 {
     using Common;
     using Http;
-    using Results;
     using System;
 
     public class RoutingTable : IRoutingTable

@@ -1,7 +1,6 @@
 ﻿namespace MyCustomWebServer.Http
 {
     using MyCustomWebServer.Common;
-    using System.Data;
 
     public class HttpSession
     {
@@ -17,6 +16,8 @@
             data = new Dictionary<string, string>();
         }
         public string Id { get; init; } = null!;
+
+        public bool IsNew { get; set; }
 
         public int Count => data.Count;
 

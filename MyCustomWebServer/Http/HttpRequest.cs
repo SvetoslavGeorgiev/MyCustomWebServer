@@ -65,7 +65,7 @@
 
             if (!Sessions.ContainsKey(sessionId))
             {
-                Sessions[sessionId] = new HttpSession(sessionId);
+                Sessions[sessionId] = new HttpSession(sessionId) { IsNew = true };
             }
 
             return Sessions[sessionId];

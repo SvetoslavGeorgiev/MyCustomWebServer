@@ -106,7 +106,14 @@
         }
 
         private void PrepareSesion(HttpRequest request, HttpResponse response)
-            => response.AddCookie(HttpSession.SessionCookieName, request.Session.Id);
+        {
+            if (request.Session.IsNew)
+            {
+                response.AddCookie(HttpSession.SessionCookieName, request.Session.Id);
+                request.Session.IsNew = false;
+            }
+            
+        }
 
         private async Task ErrorHandler(Exception exception, NetworkStream networkStream)
         {
