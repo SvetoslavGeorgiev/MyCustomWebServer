@@ -3,6 +3,7 @@
     using MyCustomWebServer.Controllers;
     using MyCustomWebServer.Http;
     using MyCustomWebServer.Results;
+    using System.Reflection.Metadata;
 
     public class AccountController : Controller
     {
@@ -11,7 +12,44 @@
         {
         }
 
-        public ActionResult ActionWithCookies()
+        public ActionResult Login()
+        {
+            //var user = DBNull.Users.Find(username, password);
+            //
+            //if (user != null)
+            //{
+            //    SignIn(user.Id);
+            //
+            //    return Text("User is authenticated!");
+            //}
+            //
+            // return Text("Invalid Credentials!");
+
+            var someUserId = "MyUserId";
+
+            SignIn(someUserId);
+
+            return Text("User authenticated!");
+        }
+
+        public ActionResult Logout()
+        { 
+            SignOut();
+
+            return Text("User is signed out!");
+        }
+
+        public ActionResult AuthenticationCheck()
+        {
+            if (User.IsAuthenticated)
+            {
+                return Text($"Authenticated user: {User.Id}");
+            }
+
+            return Text("User is not Authenticated!");
+        }
+
+        public ActionResult CookiesCheck()
         {
             const string cookieName = "My-Cookie";
 
@@ -26,7 +64,7 @@
             return Text("Cookies Set!");
         }
 
-        public ActionResult ActionWithSession()
+        public ActionResult SessionCheck()
         {
             const string currentDateKey = "CurrentDate";
 

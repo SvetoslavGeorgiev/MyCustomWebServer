@@ -27,7 +27,7 @@
             routingTableConfiguration(routingTable = new RoutingTable());
         }
 
-        public HttpServer(int port, Action<IRoutingTable> routingTable) 
+        public HttpServer(int port, Action<IRoutingTable> routingTable)
             : this("127.0.0.1", port, routingTable)
         {
         }
@@ -35,7 +35,7 @@
         public HttpServer(Action<IRoutingTable> routingTable)
             : this(8080, routingTable)
         {
-            
+
         }
 
         public async Task Start()
@@ -51,28 +51,31 @@
             {
                 var connection = await serverListener.AcceptTcpClientAsync();
 
-                var networkStream = connection.GetStream();
-
-                var requestText = await ReedRequest(networkStream);
-
-                try
+                _ = Task.Run(async () =>
                 {
-                    var request = HttpRequest.Parse(requestText);
+                    var networkStream = connection.GetStream();
 
-                    var response = routingTable.ExecuteRequest(request);
+                    var requestText = await ReedRequest(networkStream);
 
-                    PrepareSesion(request, response);
+                    try
+                    {
+                        var request = HttpRequest.Parse(requestText);
 
-                    LogPipeline(requestText, response.ToString());
+                        var response = routingTable.ExecuteRequest(request);
 
-                    await WriteResponse(networkStream, response);
-                }
-                catch (Exception exception)
-                {
-                    await ErrorHandler(exception, networkStream);
-                }
+                        PrepareSesion(request, response);
 
-                connection.Close();
+                        LogPipeline(requestText, response.ToString());
+
+                        await WriteResponse(networkStream, response);
+                    }
+                    catch (Exception exception)
+                    {
+                        await ErrorHandler(exception, networkStream);
+                    }
+
+                    connection.Close();
+                });
             }
         }
 
@@ -96,13 +99,13 @@
                 totalBytes += bytesRead;
             }
             while (networkStream.DataAvailable);
-            
+
 
             var request = requestBuilder.ToString();
             return request;
         }
 
-        private void PrepareSesion(HttpRequest request, HttpResponse response) 
+        private void PrepareSesion(HttpRequest request, HttpResponse response)
             => response.AddCookie(HttpSession.SessionCookieName, request.Session.Id);
 
         private async Task ErrorHandler(Exception exception, NetworkStream networkStream)

@@ -27,5 +27,13 @@
         }
         public bool ContainsKey(string key)
             => data.ContainsKey(key);
+
+        public void Remove(string key)
+        {
+            if (data.ContainsKey(key))
+            {
+                data.Remove(key);
+            }
+        }
     }
 }

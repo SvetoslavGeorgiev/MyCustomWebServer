@@ -1,20 +1,40 @@
 ﻿namespace MyCustomWebServer.Controllers
 {
     using Http;
+    using MyCustomWebServer.Identity;
     using Results;
     using System.Runtime.CompilerServices;
 
     public abstract class Controller
     {
+        public const string UserSessionKey = "AuthenticatedUserId";
 
         protected Controller(HttpRequest request)
         {
             Request = request;
-            Response = new HttpResponse(HttpStatusCode.OK);
+
+            User = Request.Session.ContainsKey(UserSessionKey)
+                ? new UserIdentity { Id = Request.Session[UserSessionKey] } 
+                : new();
         }
 
         protected HttpRequest Request { get; private init; }
-        public HttpResponse Response { get; private init; }
+
+        public HttpResponse Response { get; private init; } = new HttpResponse(HttpStatusCode.OK);
+
+        protected UserIdentity User { get; private set; }
+
+        protected void SignIn(string userId)
+        {
+            Request.Session[UserSessionKey] = userId;
+            User = new UserIdentity { Id = userId };
+        }
+
+        protected void SignOut()
+        {
+            Request.Session.Remove(UserSessionKey);
+            User = new();
+        }
 
         protected ActionResult Text(string text)
             => new TextResult(Response, text);
