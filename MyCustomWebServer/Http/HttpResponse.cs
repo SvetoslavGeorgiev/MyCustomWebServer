@@ -19,6 +19,12 @@
         public IDictionary<string, HttpHeader> Headers { get; } = new Dictionary<string, HttpHeader>();
         public IDictionary<string, HttpCookie> Cookies { get; } = new Dictionary<string, HttpCookie>();
 
+        public static HttpResponse ForError(string message)
+            => new HttpResponse(HttpStatusCode.INTERNAL_SERVER_ERRROR)
+            {
+                Content = message
+            };
+
         public void AddHeader(string name, string value)
         {
             Guard.AgainstNull(name, nameof(name));

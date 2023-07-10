@@ -6,6 +6,6 @@
     {
         public BadRequestResult(HttpResponse response)
             : base(response) 
-            => StatusCode = HttpStatusCode.BadRequest;
+            => StatusCode = HttpStatusCode.BAD_REQUEST;
     }
 }

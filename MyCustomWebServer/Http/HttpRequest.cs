@@ -1,12 +1,10 @@
 ﻿namespace MyCustomWebServer.Http
 {
-    using System.Diagnostics.CodeAnalysis;
-    using System.Net.Http.Headers;
-
     public class HttpRequest
     {
         private const string NewLine = "\r\n";
 
+        private static Dictionary<string, HttpSession> Sessions = new();
         public HttpMethod Method { get; private set; }
         public string Path { get; private set; } = string.Empty;
 
@@ -15,7 +13,10 @@
         public IReadOnlyDictionary<string, string> Form { get; private set; }
 
         public IReadOnlyDictionary<string, HttpHeader> Headers { get; private set; } = null!;
+
         public IReadOnlyDictionary<string, HttpCookie> Cookies { get; private set; } = null!;
+
+        public HttpSession Session { get; private set; } = null!;
 
         public string Body { get; private set; } = null!;
 
@@ -24,8 +25,8 @@
             var lines = requset.Split(NewLine);
 
             var startLine = lines.First().Split(" ");
-
             var method = ParseMethod(startLine[0]);
+
             var url = startLine[1];
 
             var (path, query) = ParseUrl(url);
@@ -33,6 +34,8 @@
             var headers = ParseHeaders(lines.Skip(1));
 
             var cookies = ParseCookies(headers);
+
+            var session = GetSession(cookies);
 
             var bodyLines = lines.Skip(headers.Count + 2).ToArray();
 
@@ -46,6 +49,7 @@
                 Path = path,
                 Headers = headers,
                 Cookies = cookies,
+                Session = session,
                 Query = query,
                 Body = body,
                 Form = form
@@ -53,44 +57,29 @@
             
         }
 
-        private static HttpMethod ParseMethod(string method)
+        private static HttpSession GetSession(Dictionary<string, HttpCookie> cookies)
         {
+            var sessionId = cookies.ContainsKey(HttpSession.SessionCookieName)
+                ? cookies[HttpSession.SessionCookieName].Value 
+                : Guid.NewGuid().ToString();
 
-            //with this syntax it throws an exception after a while as probably has some timeout for request or it is local problem on my machine
-
-            //return method.ToUpper() switch
-            //{
-            //    "GET" => HttpMethod.Get,
-            //    "POST" => HttpMethod.Post,
-            //    "PUT" => HttpMethod.Put,
-            //    "DELETE" => HttpMethod.Delete,
-            //    _ => throw new InvalidOperationException($"Method '{method}' is not supported")
-            //};
-
-
-
-
-            var httpMethod = new HttpMethod();
-
-            switch (method.ToUpper())
+            if (!Sessions.ContainsKey(sessionId))
             {
-                case "GET":
-                    httpMethod = HttpMethod.Get; 
-                    break;
-                case "POST":
-                    httpMethod = HttpMethod.Post;
-                    break;
-                case "PUT":
-                    httpMethod = HttpMethod.Put;
-                    break;
-                case "DELETE":
-                    httpMethod = HttpMethod.Delete;
-                    break;
+                Sessions[sessionId] = new HttpSession(sessionId);
             }
 
-            return httpMethod;
-
+            return Sessions[sessionId];
         }
+
+        private static HttpMethod ParseMethod(string method) 
+            => method.ToUpper() switch
+        {
+            "GET" => HttpMethod.Get,
+            "POST" => HttpMethod.Post,
+            "PUT" => HttpMethod.Put,
+            "DELETE" => HttpMethod.Delete,
+            _ => throw new InvalidOperationException($"Method '{method}' is not supported")
+        };
 
         private static (string, Dictionary<string, string>) ParseUrl(string url)
         {

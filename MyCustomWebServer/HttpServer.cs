@@ -2,6 +2,7 @@
 {
     using Http;
     using Routing;
+    using System;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
@@ -54,11 +55,22 @@
 
                 var requestText = await ReedRequest(networkStream);
 
-                var request = HttpRequest.Parse(requestText);
+                try
+                {
+                    var request = HttpRequest.Parse(requestText);
 
-                var response = routingTable.ExecuteRequest(request);
+                    var response = routingTable.ExecuteRequest(request);
 
-                await WriteResponse(networkStream, response);
+                    PrepareSesion(request, response);
+
+                    LogPipeline(requestText, response.ToString());
+
+                    await WriteResponse(networkStream, response);
+                }
+                catch (Exception exception)
+                {
+                    await ErrorHandler(exception, networkStream);
+                }
 
                 connection.Close();
             }
@@ -88,6 +100,39 @@
 
             var request = requestBuilder.ToString();
             return request;
+        }
+
+        private void PrepareSesion(HttpRequest request, HttpResponse response) 
+            => response.AddCookie(HttpSession.SessionCookieName, request.Session.Id);
+
+        private async Task ErrorHandler(Exception exception, NetworkStream networkStream)
+        {
+            var message = $"{exception.Message}{Environment.NewLine}{exception.StackTrace}";
+            var errorResponse = HttpResponse.ForError(message);
+
+            await WriteResponse(networkStream, errorResponse);
+        }
+
+        private void LogPipeline(string request, string response)
+        {
+            var separator = new string('-', 50);
+
+            var log = new StringBuilder();
+
+            log.AppendLine();
+            log.AppendLine(separator);
+
+            log.AppendLine("REQUEST:");
+            log.AppendLine(request);
+
+            log.AppendLine();
+
+            log.AppendLine("RESPONSE:");
+            log.AppendLine(response);
+
+            log.AppendLine();
+
+            Console.WriteLine(log);
         }
 
         private async Task WriteResponse(NetworkStream networkStream, HttpResponse response)

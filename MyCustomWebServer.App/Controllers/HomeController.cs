@@ -17,6 +17,8 @@
 
         public ActionResult ToSoftUni() => Redirect("https://softuni.bg/");
 
+        public ActionResult Error() => throw new InvalidOperationException("Invalid action!");
+
 
     }
 }
