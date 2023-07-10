@@ -1,14 +1,18 @@
-﻿namespace MyCustomWebServer.Responses
+﻿namespace MyCustomWebServer.Results
 {
     using Http;
-    using System.Security.AccessControl;
 
-    public class ViewResponse : HttpResponse
+    public class ViewResult : ActionResult
     {
         private const char PathSeparator = '/';
 
-        public ViewResponse(string viewName, string controllerName, object model)
-            : base(HttpStatusCode.OK) => GetHtml(viewName, controllerName, model);
+        public ViewResult(
+            HttpResponse response,
+            string viewName, 
+            string controllerName, 
+            object model)
+            : base(response) 
+            => GetHtml(viewName, controllerName, model);
 
         private void GetHtml(string viewName, string controllerName, object model)
         {

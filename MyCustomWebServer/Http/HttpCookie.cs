@@ -16,7 +16,7 @@
         public string Value { get; init; } = null!;
 
         public override string ToString()
-            => $"{Name}: {Value}";
+            => $"{Name}={Value}";
 
     }
 }

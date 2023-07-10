@@ -1,6 +1,7 @@
 ﻿namespace MyCustomWebServer.Http
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Net.Http.Headers;
 
     public class HttpRequest
     {
@@ -14,6 +15,7 @@
         public IReadOnlyDictionary<string, string> Form { get; private set; }
 
         public IReadOnlyDictionary<string, HttpHeader> Headers { get; private set; } = null!;
+        public IReadOnlyDictionary<string, HttpCookie> Cookies { get; private set; } = null!;
 
         public string Body { get; private set; } = null!;
 
@@ -23,12 +25,15 @@
 
             var startLine = lines.First().Split(" ");
 
-            var method = ParseHttpMethod(startLine[0]);
+            var method = ParseMethod(startLine[0]);
             var url = startLine[1];
 
             var (path, query) = ParseUrl(url);
 
-            var headers = ParseHttpHeaders(lines.Skip(1));
+            var headers = ParseHeaders(lines.Skip(1));
+
+            var cookies = ParseCookies(headers);
+
             var bodyLines = lines.Skip(headers.Count + 2).ToArray();
 
             var body = string.Join(NewLine, bodyLines);
@@ -40,6 +45,7 @@
                 Method = method,
                 Path = path,
                 Headers = headers,
+                Cookies = cookies,
                 Query = query,
                 Body = body,
                 Form = form
@@ -47,7 +53,7 @@
             
         }
 
-        private static HttpMethod ParseHttpMethod(string method)
+        private static HttpMethod ParseMethod(string method)
         {
 
             //with this syntax it throws an exception after a while as probably has some timeout for request or it is local problem on my machine
@@ -127,7 +133,7 @@
             return query;
         }
 
-        private static Dictionary<string, HttpHeader> ParseHttpHeaders(IEnumerable<string> headerLines)
+        private static Dictionary<string, HttpHeader> ParseHeaders(IEnumerable<string> headerLines)
         {
             var headers = new Dictionary<string, HttpHeader>();
 
@@ -152,6 +158,32 @@
             }
 
             return headers;
+        }
+
+        private static Dictionary<string, HttpCookie> ParseCookies(Dictionary<string, HttpHeader> headers)
+        {
+            var cookies = new Dictionary<string, HttpCookie>();
+
+            var cookieHeader = headers.Values.FirstOrDefault(h => h.Name.Equals(HttpHeader.Cookie));
+
+            if (cookieHeader != null)
+            {
+                var allCookies = cookieHeader
+                    .Value
+                    .Split(';');
+
+                foreach ( var cookie in allCookies)
+                {
+                    var cookieParts = cookie.Split("=", 2);
+
+                    var cookieName = cookieParts[0].Trim();
+                    var cookieValue = cookieParts[1].Trim();
+
+                    cookies.Add(cookieName, new HttpCookie (cookieName, cookieValue));
+                }
+            }
+
+            return cookies;
         }
 
         private static Dictionary<string, string> ParseForm(Dictionary<string, HttpHeader> headers, string body)

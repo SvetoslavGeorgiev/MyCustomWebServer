@@ -2,7 +2,7 @@
 {
     using Common;
     using Http;
-    using Responses;
+    using Results;
     using System;
 
     public class RoutingTable : IRoutingTable
@@ -56,7 +56,7 @@
 
             if (!routes.ContainsKey(requestMethod) || !routes[requestMethod].ContainsKey(requsePath))
             {
-                return new NotFoundResponse();
+                return new HttpResponse(HttpStatusCode.NOT_FOUND);
             }
 
             var responseFunc = routes[requestMethod][requsePath];

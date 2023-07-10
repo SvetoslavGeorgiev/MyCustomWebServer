@@ -2,6 +2,7 @@
 {
     using MyCustomWebServer.Controllers;
     using MyCustomWebServer.Http;
+    using MyCustomWebServer.Results;
 
     public class HomeController : Controller
     {
@@ -10,11 +11,11 @@
         {
         }
 
-        public HttpResponse Index() => Text("Hello From Svetoslav");
+        public ActionResult Index() => Text("Hello From Svetoslav");
 
-        public HttpResponse LocalRedirect() => Redirect("/Dogs");
+        public ActionResult LocalRedirect() => Redirect("/Dogs");
 
-        public HttpResponse ToSoftUni() => Redirect("https://softuni.bg/");
+        public ActionResult ToSoftUni() => Redirect("https://softuni.bg/");
 
 
     }

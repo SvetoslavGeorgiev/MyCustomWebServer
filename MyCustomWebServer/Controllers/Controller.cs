@@ -1,35 +1,38 @@
 ﻿namespace MyCustomWebServer.Controllers
 {
     using Http;
-    using Responses;
+    using Results;
     using System.Runtime.CompilerServices;
 
     public abstract class Controller
     {
 
         protected Controller(HttpRequest request)
-            => Request = request;
+        {
+            Request = request;
+            Response = new HttpResponse(HttpStatusCode.OK);
+        }
 
         protected HttpRequest Request { get; private init; }
+        public HttpResponse Response { get; private init; }
 
+        protected ActionResult Text(string text)
+            => new TextResult(Response, text);
 
-        protected HttpResponse Text(string text)
-            => new TextResponse(text);
+        protected ActionResult Html(string html)
+            => new HtmlResult(Response, html);
 
-        protected HttpResponse Html(string html)
-            => new HtmlResponse(html);
+        protected ActionResult Redirect(string location)
+            => new RedirectResult(Response, location);
 
-        protected HttpResponse Redirect(string location)
-            => new RedirectResponse(location);
+        protected ActionResult View([CallerMemberName] string viewName = "")
+            => new ViewResult(Response, viewName, GetControllerName(), null);
 
-        protected HttpResponse View([CallerMemberName] string viewName = "")
-            => new ViewResponse(viewName, GetControllerName(), null);
+        protected ActionResult View(string viewName, object model)
+            => new ViewResult(Response, viewName, GetControllerName(), model);
 
-        protected HttpResponse View(string viewName, object model)
-            => new ViewResponse(viewName, GetControllerName(), model);
-
-        protected HttpResponse View(object model, [CallerMemberName] string viewName = "")
-            => new ViewResponse(viewName, GetControllerName(), model);
+        protected ActionResult View(object model, [CallerMemberName] string viewName = "")
+            => new ViewResult(Response, viewName, GetControllerName(), model);
 
         private string GetControllerName()
             => GetType().Name

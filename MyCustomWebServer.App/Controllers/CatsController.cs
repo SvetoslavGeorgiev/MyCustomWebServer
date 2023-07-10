@@ -2,6 +2,7 @@
 {
     using MyCustomWebServer.Controllers;
     using MyCustomWebServer.Http;
+    using MyCustomWebServer.Results;
 
     public class CatsController : Controller
     {
@@ -11,10 +12,10 @@
         }
 
 
-        public HttpResponse Create() => View();
+        public ActionResult Create() => View();
 
        
-        public HttpResponse Save()
+        public ActionResult Save()
         {
             var name = Request.Form["Name"];
             var age = Request.Form["Age"];

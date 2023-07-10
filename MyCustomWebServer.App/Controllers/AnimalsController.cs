@@ -3,7 +3,7 @@
     using Http;
     using Models.Animals;
     using MyCustomWebServer.Controllers;
-    using System.Net.Http.Headers;
+    using MyCustomWebServer.Results;
 
     public class AnimalsController : Controller
     {
@@ -13,7 +13,7 @@
         {
         }
 
-        public HttpResponse Cats()
+        public ActionResult Cats()
         {
             const string nameKey = "Name";
             const string ageKey = "Age";
@@ -38,13 +38,13 @@
         }
 
 
-        public HttpResponse Dogs() => View(new DogViewModel
+        public ActionResult Dogs() => View(new DogViewModel
         {
             Name = "Rex",
             Age = 3,
             Breed = "German Shepherd"
         });
-        public HttpResponse Bunnies() => View("Rabbits");
-        public HttpResponse Turtles() => View("Animals/Wild/Turtles");
+        public ActionResult Bunnies() => View("Rabbits");
+        public ActionResult Turtles() => View("Animals/Wild/Turtles");
     }
 }
