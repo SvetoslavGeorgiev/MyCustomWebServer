@@ -1,42 +1,53 @@
 ﻿namespace MyCustomWebServer.Results
 {
     using Http;
+    using MyCustomWebServer.Results.Views;
 
     public class ViewResult : ActionResult
     {
         private const char PathSeparator = '/';
+        private readonly string[] ViewFileExtensions = { "html", "cshtml" };
 
         public ViewResult(
             HttpResponse response,
+            IViewEngine viewEngine,
             string viewName, 
             string controllerName, 
-            object model)
+            object model,
+            string userId)
             : base(response) 
-            => GetHtml(viewName, controllerName, model);
+            => GetHtml(viewEngine ,viewName, controllerName, model, userId);
 
-        private void GetHtml(string viewName, string controllerName, object model)
+        private void GetHtml(IViewEngine viewEngine,  string viewName, string controllerName, object model, string userId)
         {
             if (!viewName.Contains(PathSeparator))
             {
                 viewName = controllerName + PathSeparator + viewName;
             }
-            
-            var viewPath = Path.GetFullPath("Views/" + viewName + ".cshtml"); 
 
-            if (!File.Exists(viewPath)) 
+            var (viewPath, viewExists) = FindView(viewName);
+
+            if (!viewExists)
             {
-                PrepareMissingViewError(viewName);
+                this.PrepareMissingViewError(viewPath);
+
                 return;
             }
 
             var viewContent = File.ReadAllText(viewPath);
 
-            if (model != null)
+            var (layoutPath, layoutExists) = FindLayout();
+
+            if (layoutExists)
             {
-                viewContent = PopulateModel(viewContent, model);
+                var layoutContent = File.ReadAllText(layoutPath);
+
+                viewContent = layoutContent.Replace("@RenderBody()", viewContent);
             }
 
-            SetContent(viewContent, HttpContentType.Html);
+            viewContent = viewEngine.RenderHtml(viewContent, model, userId);
+
+            this.SetContent(viewContent, HttpContentType.Html);
 
         }
 
@@ -47,6 +58,52 @@
             var errorMessage = $"View '{viewName} was not found";
 
             SetContent(errorMessage, HttpContentType.PlainText);
+        }
+
+        private (string, bool) FindView(string viewName)
+        {
+            string viewPath = null;
+            var exists = false;
+
+            foreach (var fileExtension in ViewFileExtensions)
+            {
+                viewPath = Path.GetFullPath($"./Views/" + viewName.TrimStart(PathSeparator) + $".{fileExtension}");
+
+                if (File.Exists(viewPath))
+                {
+                    exists = true;
+                    break;
+                }
+            }
+
+            return (viewPath, exists);
+        }
+
+        private (string, bool) FindLayout()
+        {
+            string layoutPath = null;
+            bool exists = false;
+
+            foreach (var fileExtension in ViewFileExtensions)
+            {
+                layoutPath = Path.GetFullPath($"./Views/Layout.{fileExtension}");
+
+                if (File.Exists(layoutPath))
+                {
+                    exists = true;
+                    break;
+                }
+
+                layoutPath = Path.GetFullPath($"./Views/Shared/_Layout.{fileExtension}");
+
+                if (File.Exists(layoutPath))
+                {
+                    exists = true;
+                    break;
+                }
+            }
+
+            return (layoutPath, exists);
         }
 
         private string PopulateModel(string viewContent, object model)

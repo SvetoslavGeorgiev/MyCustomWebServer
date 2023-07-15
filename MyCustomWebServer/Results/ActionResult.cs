@@ -1,34 +1,31 @@
 ﻿namespace MyCustomWebServer.Results
 {
     using Http;
+    using Http.Collections;
 
     public abstract class ActionResult : HttpResponse
     {
         protected ActionResult(HttpResponse response)
             : base(response.StatusCode)
         {
-            Response = response;
-            StatusCode = response.StatusCode;
             Content = response.Content;
             PrepareHeaders(response.Headers);
             PrepareCookies(response.Cookies);
         }
 
-        protected HttpResponse Response { get; private init; }
-
-        private void PrepareHeaders(IDictionary<string, HttpHeader> headers)
+        private void PrepareHeaders(HeaderCollection headers)
         {
-            foreach (var header in headers.Values)
+            foreach (var header in headers)
             {
-                AddHeader(header.Name, header.Value);
+                Headers.Add(header.Name, header.Value);
             }
         }
 
-        private void PrepareCookies(IDictionary<string, HttpCookie> cookies)
+        private void PrepareCookies(CookieCollection cookies)
         {
-            foreach (var cookie in cookies.Values)
+            foreach (var cookie in cookies)
             {
-                AddCookie(cookie.Name, cookie.Value);
+                Cookies.Add(cookie.Name, cookie.Value);
             }
         }
     }

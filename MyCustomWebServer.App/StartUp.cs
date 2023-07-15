@@ -1,31 +1,23 @@
 ﻿namespace MyCustomWebServer.App
 {
     using System.Threading.Tasks;
-    using MyCustomWebServer.App.Controllers;
+    using Controllers;
     using MyCustomWebServer;
     using MyCustomWebServer.Controllers;
+    using MyCustomWebServer.Results.Views;
+    using Data;
 
     public class StartUp
     {
         static async Task Main(string[] args)
-            => await new HttpServer(routes => routes
-            .MapStaticFIles()
-            .MapGet<HomeController>("/", c => c.Index())
-            .MapGet<HomeController>("/ToDogs", c => c.LocalRedirect())
-            .MapGet<HomeController>("/Softuni", c => c.ToSoftUni())
-            .MapGet<HomeController>("/Error", c => c.Error())
-            .MapGet<HomeController>("/StaticFiles", c => c.StaticFiles())
-            .MapGet<AnimalsController>("/Cats", c => c.Cats())
-            .MapGet<AnimalsController>("/Dogs", c => c.Dogs())
-            .MapGet<AnimalsController>("/Bunnies", c => c.Bunnies())
-            .MapGet<AnimalsController>("/Turtles", c => c.Turtles())
-            .MapGet<AccountController>("/Cookies", c => c.CookiesCheck())
-            .MapGet<AccountController>("/Session", c => c.SessionCheck())
-            .MapGet<AccountController>("/Login", c => c.Login())
-            .MapGet<AccountController>("/Logout", c => c.Logout())
-            .MapGet<AccountController>("/Authentication", c => c.AuthenticationCheck())
-            .MapGet<CatsController>("/Cats/Create", c => c.Create())
-            .MapPost<CatsController>("/Cats/Save", c => c.Save()))
-            .Start();
+            => await HttpServer
+                .WithRoutes(routes => routes
+                    .MapStaticFiles()
+                    .MapControllers()
+                    .MapGet<HomeController>("/ToCats", c => c.LocalRedirect()))
+                .WithServices(services => services
+                    .Add<IViewEngine, CompilationViewEngine>()
+                    .Add<IData, MyDbContext>())
+                .Start();
     }
 }

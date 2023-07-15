@@ -26,7 +26,7 @@
             get => data[key];
             set => data[key] = value;
         }
-        public bool ContainsKey(string key)
+        public bool Contains(string key)
             => data.ContainsKey(key);
 
         public void Remove(string key)

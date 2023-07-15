@@ -1,8 +1,8 @@
 ﻿namespace MyCustomWebServer.Http
 {
     using MyCustomWebServer.Common;
+    using Collections;
     using System.Text;
-    using static System.Net.Mime.MediaTypeNames;
 
     public class HttpResponse
     {
@@ -10,8 +10,8 @@
         {
             StatusCode = statusCode;
 
-            AddHeader(HttpHeader.Server, "My Web Server");
-            AddHeader(HttpHeader.Date, $"{DateTime.UtcNow:r}");
+            Headers.Add(HttpHeader.Server, "My Web Server");
+            Headers.Add(HttpHeader.Date, $"{DateTime.UtcNow:r}");
         }
         public HttpStatusCode StatusCode { get; protected set; }
 
@@ -19,8 +19,8 @@
 
         public bool HasContent => Content != null && Content.Any();
 
-        public IDictionary<string, HttpHeader> Headers { get; } = new Dictionary<string, HttpHeader>();
-        public IDictionary<string, HttpCookie> Cookies { get; } = new Dictionary<string, HttpCookie>();
+        public HeaderCollection Headers { get; } = new();
+        public CookieCollection Cookies { get; } = new();
 
         public static HttpResponse ForError(string message)
             => new HttpResponse(HttpStatusCode.INTERNAL_SERVER_ERRROR)
@@ -33,8 +33,8 @@
 
             var contentLength = Encoding.UTF8.GetByteCount(text).ToString();
 
-            AddHeader(HttpHeader.ContentType, contentType);
-            AddHeader(HttpHeader.ContentLength, contentLength);
+            Headers.Add(HttpHeader.ContentType, contentType);
+            Headers.Add(HttpHeader.ContentLength, contentLength);
 
             Content = Encoding.UTF8.GetBytes(text);
 
@@ -46,28 +46,12 @@
             Guard.AgainstNull(content, nameof(content));
             Guard.AgainstNull(contentType, nameof(contentType));
 
-            AddHeader(HttpHeader.ContentType, contentType);
-            AddHeader(HttpHeader.ContentLength, content.Length.ToString());
+            Headers.Add(HttpHeader.ContentType, contentType);
+            Headers.Add(HttpHeader.ContentLength, content.Length.ToString());
 
             Content = content;
 
             return this;
-        }
-
-        public void AddHeader(string name, string value)
-        {
-            Guard.AgainstNull(name, nameof(name));
-            Guard.AgainstNull(value, nameof(value));
-
-            Headers[name] = new HttpHeader(name, value);
-        }
-
-        public void AddCookie(string name, string value)
-        {
-            Guard.AgainstNull(name, nameof(name));
-            Guard.AgainstNull(value, nameof(value));
-
-            Cookies[name] = new HttpCookie(name, value);
         }
 
         public override string ToString()
@@ -76,12 +60,12 @@
 
             result.AppendLine($"HTTP/1.1 {(int)StatusCode} {StatusCode}");
 
-            foreach (var header in Headers.Values)
+            foreach (var header in Headers)
             {
                 result.AppendLine($"{header.ToString()}");
             }
 
-            foreach (var cookie in Cookies.Values)
+            foreach (var cookie in Cookies)
             {
                 result.AppendLine($"{HttpHeader.SetCookie}: {cookie}");
             }

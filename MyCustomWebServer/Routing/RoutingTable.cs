@@ -63,11 +63,17 @@
             return responseFunc(request);
         }
 
-        public IRoutingTable MapStaticFIles(string folder = Settings.StaticFilesRootFolder)
+        public IRoutingTable MapStaticFiles(string folder = Settings.StaticFilesRootFolder)
         {
             const char DirectoryPathseparator = '\\';
             var currentDirectory = Directory.GetCurrentDirectory();
             var staticFilesFolder = Path.Combine(currentDirectory + DirectoryPathseparator + folder);
+
+            if (!Directory.Exists(staticFilesFolder))
+            {
+                return this;
+            }
+
             var staticFiles = Directory.GetFiles(staticFilesFolder, "*.*", SearchOption.AllDirectories);
 
 
@@ -88,7 +94,7 @@
                     var contentType = HttpContentType.GetByFileExtension(fileExtension);
 
                     return new HttpResponse(HttpStatusCode.OK)
-                    .SetContent(content, contentType);
+                        .SetContent(content, contentType);
                 });
             }
 

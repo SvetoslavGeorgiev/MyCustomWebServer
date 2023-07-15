@@ -8,11 +8,6 @@
     public class AnimalsController : Controller
     {
         
-        public AnimalsController(HttpRequest request) 
-            : base(request)
-        {
-        }
-
         public ActionResult Cats()
         {
             const string nameKey = "Name";
@@ -20,11 +15,11 @@
 
             var query = Request.Query;
 
-            var catName = query.ContainsKey(nameKey)
+            var catName = query.Contains(nameKey)
                 ? query[nameKey]
                 : "the cats";
 
-            var catAge = query.ContainsKey(ageKey)
+            var catAge = query.Contains(ageKey)
                 ? int.Parse(query[ageKey])
                 : 0;
             var model = new CatViewModel 

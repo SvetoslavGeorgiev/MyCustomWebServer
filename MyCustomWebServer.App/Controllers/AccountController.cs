@@ -6,10 +6,6 @@
 
     public class AccountController : Controller
     {
-        public AccountController(HttpRequest request) 
-            : base(request)
-        {
-        }
 
         public ActionResult Login()
         {
@@ -48,18 +44,22 @@
             return Text("User is not Authenticated!");
         }
 
+        [Authorize]
+        public ActionResult AuthorizationCheck()
+            => Text($"Current user: {this.User.Id}");
+
         public ActionResult CookiesCheck()
         {
             const string cookieName = "My-Cookie";
 
-            if (Request.Cookies.ContainsKey(cookieName))
+            if (Request.Cookies.Contains(cookieName))
             {
                 var cookie = Request.Cookies[cookieName];
 
                 return Text($"Cookie already exist - {cookie}");
             }
-            Response.AddCookie(cookieName, "My-Value");
-            Response.AddCookie("My-Second-Cookie", "My-Second-Value");
+            Response.Cookies.Add(cookieName, "My-Value");
+            Response.Cookies.Add("My-Second-Cookie", "My-Second-Value");
             return Text("Cookies Set!");
         }
 
@@ -67,7 +67,7 @@
         {
             const string currentDateKey = "CurrentDate";
 
-            if (Request.Session.ContainsKey(currentDateKey))
+            if (Request.Session.Contains(currentDateKey))
             {
                 var currentDate = Request.Session[currentDateKey];
 

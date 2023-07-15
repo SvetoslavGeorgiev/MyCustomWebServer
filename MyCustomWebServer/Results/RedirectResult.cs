@@ -8,7 +8,7 @@
             : base(response)
         {
             StatusCode = HttpStatusCode.FOUND;
-            AddHeader(HttpHeader.Location, location);
+            Headers.Add(HttpHeader.Location, location);
         }
     }
 }
