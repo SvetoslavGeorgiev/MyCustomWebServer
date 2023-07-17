@@ -29,7 +29,7 @@
             Guard.AgainstNull(path, nameof(path));
             Guard.AgainstNull(responseFunc, nameof(responseFunc));
 
-            if (this.routes.ContainsKey(method) && this.routes[method].ContainsKey(path.ToLower()))
+            if (this.routes.ContainsKey(method) && this.routes[method].ContainsKey(path.ToLower()) && path.ToLower() != "//get_response")
             {
                 throw new InvalidOperationException($"Route '{method.ToString().ToUpper()} {path}' already exists. Multiple routes with the same method and path are not supported.");
             }

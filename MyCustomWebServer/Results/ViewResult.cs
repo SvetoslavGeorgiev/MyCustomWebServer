@@ -105,29 +105,5 @@
 
             return (layoutPath, exists);
         }
-
-        private string PopulateModel(string viewContent, object model)
-        {
-            var data = model
-                .GetType()
-                .GetProperties()
-                .Select(pr => new
-                {
-                    Name = pr.Name,
-                    Value = pr.GetValue(model)
-                });
-
-            foreach (var property in data)
-            {
-                const string openingBrackets = "{{";
-                const string closingBrackets = "}}";
-
-                var name = $"{openingBrackets}{property.Name}{closingBrackets}";
-
-                viewContent = viewContent.Replace($"{name}", property.Value.ToString());
-            }
-
-            return viewContent;
-        }
     }
 }
